@@ -9,6 +9,7 @@ using UnityEngine.Tilemaps;
 using UnityEngine.UIElements;
 using static ReversiManager;
 using static Square;
+using TMPro;
 
 public class ReversiManager : MonoBehaviour
 {
@@ -26,10 +27,12 @@ public class ReversiManager : MonoBehaviour
     [SerializeField] private Tilemap tilemap;
     private GameObject blackdisc;
     private GameObject whitedisc;
+    [SerializeField] private TextMeshProUGUI Turn_Screen;
 
     void Start()
     {
         game_state = GameState.BlackTurn;
+        Turn_Screen.text = "Black Turn";
         squares = new Square[8, 8];
         blackdisc = Resources.Load<GameObject>("Prefabs/BlackDisc");
         whitedisc = Resources.Load<GameObject>("Prefabs/WhiteDisc");
@@ -196,16 +199,19 @@ public class ReversiManager : MonoBehaviour
             if (black_disc_count > white_disc_count)
             {
                 game_state = GameState.BlackWin;
+                Turn_Screen.text = "Black Win";
                 return;
             }
             else if (black_disc_count < white_disc_count)
             {
                 game_state = GameState.WhiteWin;
+                Turn_Screen.text = "White Win";
                 return;
             }
             else
             {
                 game_state = GameState.Draw;
+                Turn_Screen.text = "Draw";
                 return;
             }
         }
@@ -230,6 +236,7 @@ public class ReversiManager : MonoBehaviour
                         if (cnt == squares.Length)
                         {
                             game_state = GameState.BlackWin;
+                            Turn_Screen.text = "Black Win";
                             return;
                         }
                     }
@@ -257,6 +264,7 @@ public class ReversiManager : MonoBehaviour
                         if (cnt == squares.Length)
                         {
                             game_state = GameState.WhiteWin;
+                            Turn_Screen.text = "White Win";
                             return;
                         }
                     }
@@ -266,6 +274,77 @@ public class ReversiManager : MonoBehaviour
             }
         }
 
+        //石を置けるかどうかの判定
+        bool canCurrentPlayerPlace = false;
+        for (int i = 0; i < squares.GetLength(1); i++)
+        {
+            for (int j = 0; j < squares.GetLength(0); j++)
+            {
+                if (squares[i, j].IsPlaceableSquare(game_state))
+                {
+                    canCurrentPlayerPlace = true;
+                    break;
+                }
+            }
+            if (canCurrentPlayerPlace) break;
+        }
+
+        //次のプレイヤーが石を置けるかどうかの判定
+        bool canNextPlayerPlace = false;
+        for (int i = 0; i < squares.GetLength(1); i++)
+        {
+            for (int j = 0; j < squares.GetLength(0); j++)
+            {
+                if (squares[i, j].IsPlaceableSquare(OppositeGameState(game_state)))
+                {
+                    canNextPlayerPlace = true;
+                    break;
+                }
+            }
+            if (canNextPlayerPlace) break;
+        }
+
+        //両者石を置けない場合ゲーム終了
+        if (!canCurrentPlayerPlace && !canNextPlayerPlace)
+        {
+            if (black_disc_count > white_disc_count)
+            {
+                game_state = GameState.BlackWin;
+                Turn_Screen.text = "Black Win";
+                return;
+            }
+            else if (black_disc_count < white_disc_count)
+            {
+                game_state = GameState.WhiteWin;
+                Turn_Screen.text = "White Win";
+                return;
+            }
+            else
+            {
+                game_state = GameState.Draw;
+                Turn_Screen.text = "Draw";
+                return;
+            }
+        }
+
+        //次のプレイヤーが石を置けるが現在のプレイヤーが置けない場合、現在のプレイヤーのターンをスキップ
+        if (!canCurrentPlayerPlace && canNextPlayerPlace)
+        {
+            return;
+        }
+
+        //それ以外の場合、次のプレイヤーのターン
+        game_state = OppositeGameState(game_state);
+        if (game_state == GameState.BlackTurn)
+        {
+            Turn_Screen.text = "Black Turn";
+        }
+        else if (game_state == GameState.WhiteTurn)
+        {
+            Turn_Screen.text = "White Turn";
+        }
+
+        /*
         // Check if the current player can place a disc
         bool canCurrentPlayerPlace = false;
         for (int i = 0; i < squares.GetLength(1); i++)
@@ -302,16 +381,19 @@ public class ReversiManager : MonoBehaviour
             if (black_disc_count > white_disc_count)
             {
                 game_state = GameState.BlackWin;
+                Turn_Screen.text = "Black Win";
                 return;
             }
             else if (black_disc_count < white_disc_count)
             {
                 game_state = GameState.WhiteWin;
+                Turn_Screen.text = "White Win";
                 return;
             }
             else
             {
                 game_state = GameState.Draw;
+                Turn_Screen.text = "Draw";
                 return;
             }
         }
@@ -320,11 +402,28 @@ public class ReversiManager : MonoBehaviour
         if (!canCurrentPlayerPlace && canNextPlayerPlace)
         {
             game_state = OppositeGameState(game_state);
+            if (game_state == GameState.BlackTurn)
+            {
+                Turn_Screen.text = "Black Turn";
+            }
+            else if (game_state == GameState.WhiteTurn)
+            {
+                Turn_Screen.text = "White Turn";
+            }
             return;
         }
 
         // Otherwise, it's the next player's turn
         game_state = OppositeGameState(game_state);
+        if (game_state == GameState.BlackTurn)
+        {
+            Turn_Screen.text = "Black Turn";
+        }
+        else if (game_state == GameState.WhiteTurn)
+        {
+            Turn_Screen.text = "White Turn";
+        }
+        */
     }
 }
 
