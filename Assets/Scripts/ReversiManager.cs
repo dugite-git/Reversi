@@ -61,8 +61,6 @@ public class ReversiManager : MonoBehaviour
                 FlipDiscs(-(clicked_cell_position.x - 3), clicked_cell_position.y + 4);
 
                 ChangeGameState();
-                Debug.Log(squares[-(clicked_cell_position.x - 3), clicked_cell_position.y + 4].square_state);
-                Debug.Log(game_state);
             }
         }
     }
@@ -78,10 +76,11 @@ public class ReversiManager : MonoBehaviour
             {
                 Vector3Int local_square_position = new Vector3Int(7 - (i % 8), i / 8, 0);
                 squares[7 - (i % 8), i / 8] = new Square(tilemap.GetCellCenterWorld(cell_position), local_square_position, squares);
+                squares[7 - (i % 8), i / 8].square_position_center.z = -1;
                 i++;
             }
         }
-
+        //初期配置
         squares[3, 3].ChangeSquareStateIntoWhite();
         GameObject newDisc = Instantiate(whitedisc, squares[3, 3].square_position_center, Quaternion.identity);
         squares[3, 3].disc = newDisc;
@@ -193,6 +192,20 @@ public class ReversiManager : MonoBehaviour
             }
         }
 
+        //片方の色の石がなくなったらもう片方の勝利
+        if (white_disc_count == 0)
+        {
+            game_state = GameState.BlackWin;
+            Turn_Screen.text = "Black Win";
+            return;
+        }
+        else if (black_disc_count == 0)
+        {
+            game_state = GameState.WhiteWin;
+            Turn_Screen.text = "White Win";
+            return;
+        }
+
         //盤面が埋まったら勝敗判定
         if (black_disc_count + white_disc_count == squares.Length)
         {
@@ -213,64 +226,6 @@ public class ReversiManager : MonoBehaviour
                 game_state = GameState.Draw;
                 Turn_Screen.text = "Draw";
                 return;
-            }
-        }
-
-        //片方の色の石がなくなったらもう片方の勝利
-        if (game_state == GameState.BlackTurn)
-        {
-            for (int i = 0; i < squares.GetLength(1); i++)
-            {
-                bool flag = false;
-                int cnt = 0;
-                for (int j = 0; j < squares.GetLength(0); j++)
-                {
-                    if (squares[i, j].square_state == SquareState.White)
-                    {
-                        flag = true;
-                        break;
-                    }
-                    else
-                    {
-                        cnt++;
-                        if (cnt == squares.Length)
-                        {
-                            game_state = GameState.BlackWin;
-                            Turn_Screen.text = "Black Win";
-                            return;
-                        }
-                    }
-                }
-
-                if (flag) break;
-            }
-        }
-        else
-        {
-            for (int i = 0; i < squares.GetLength(1); i++)
-            {
-                bool flag = false;
-                int cnt = 0;
-                for (int j = 0; j < squares.GetLength(0); j++)
-                {
-                    if (squares[i, j].square_state == SquareState.Black)
-                    {
-                        flag = true;
-                        break;
-                    }
-                    else
-                    {
-                        cnt++;
-                        if (cnt == squares.Length)
-                        {
-                            game_state = GameState.WhiteWin;
-                            Turn_Screen.text = "White Win";
-                            return;
-                        }
-                    }
-                }
-
-                if (flag) break;
             }
         }
 
@@ -327,8 +282,8 @@ public class ReversiManager : MonoBehaviour
             }
         }
 
-        //次のプレイヤーが石を置けるが現在のプレイヤーが置けない場合、現在のプレイヤーのターンをスキップ
-        if (!canCurrentPlayerPlace && canNextPlayerPlace)
+        //現在のプレイヤーが石を置けるが次のプレイヤーが置けない場合、次のプレイヤーのターンをスキップ
+        if (canCurrentPlayerPlace && !canNextPlayerPlace)
         {
             return;
         }
@@ -389,16 +344,16 @@ public class Square
     { 
         if(square_state != SquareState.Empty) return false;
         int[,] directions = new int[,]
-{
-        {-1, -1}, // 左上
-        {-1, 0},  // 上
-        {-1, 1},  // 右上
-        {0, -1},  // 左
-        {0, 1},   // 右
-        {1, -1},  // 左下
-        {1, 0},   // 下
-        {1, 1}    // 右下
-};
+        {
+                {-1, -1}, // 左上
+                {-1, 0},  // 上
+                {-1, 1},  // 右上
+                {0, -1},  // 左
+                {0, 1},   // 右
+                {1, -1},  // 左下
+                {1, 0},   // 下
+                {1, 1}    // 右下
+        };
 
         for (int i = 0; i < directions.GetLength(0); i++)
         {
