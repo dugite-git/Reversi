@@ -4,5 +4,5 @@
 ### ブラウザ版
 https://unityroom.com/games/reversi_dugite
 
-### windows版
+### Windows版
 https://github.com/dugite-git/Reversi/releases/latest
