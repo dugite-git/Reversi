@@ -2,4 +2,7 @@
 同じ端末で一緒にプレイをすることが出来るオセロです。
 
 ### ブラウザ版
-[unityroom](https://unityroom.com/games/reversi_dugite)
+https://unityroom.com/games/reversi_dugite
+
+### windows版
+https://github.com/dugite-git/Reversi/releases/latest
